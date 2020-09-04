@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -20,42 +21,58 @@ func UserInfo(c *gin.Context) {
 	// 判断是否有传id
 	// 有传id
 	if id != "" {
-		// string 转换为 uint
-		intID, err := strconv.Atoi(id)
-		uintID := uint(intID)
+		// 判断字符串是否是数字
+		pattern := "\\d+"
 
-		// 类型转换失败
-		if err != nil {
-			c.JSON(http.StatusForbidden, gin.H{
-				"code":    http.StatusForbidden,
-				"message": err.Error(),
-			})
-		}
+		result, _ := regexp.MatchString(pattern, id)
 
-		// 从库中查找用户
-		u := models.User{ID: uintID}
+		// 字符串为数字
+		if result {
+			// string 转换为 uint
+			intID, err := strconv.Atoi(id)
+			uintID := uint(intID)
 
-		res, err := u.GetUser()
+			// 类型转换失败
+			if err != nil {
+				c.JSON(http.StatusForbidden, gin.H{
+					"code":    http.StatusForbidden,
+					"message": err.Error(),
+				})
+			}
 
-		// 没有找到用户
-		if err != nil {
-			log.Fatalln(err)
-		}
+			// 从库中查找用户
+			u := models.User{ID: uintID}
 
-		// 用户名不为空，有该id的用户
-		if res.Name != "" {
-			// fmt.Println(res)
-			c.JSON(http.StatusOK, gin.H{
-				"data": res,
-			})
+			res, err := u.GetUser()
+
+			// 没有找到用户
+			if err != nil {
+				fmt.Println(err)
+				log.Fatalln(err)
+			}
+
+			// 用户名不为空，有该id的用户
+			if res.Name != "" {
+				// fmt.Println(res)
+				c.JSON(http.StatusOK, gin.H{
+					"data": res,
+				})
+			} else {
+				//	库中用户名为空，则没有该用户
+				// fmt.Println(res)
+				c.JSON(http.StatusForbidden, gin.H{
+					"code":    http.StatusForbidden,
+					"message": "用户不存在",
+				})
+			}
 		} else {
-			//	库中用户名为空，则没有该用户
-			// fmt.Println(res)
+			// id 为非数字
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":    http.StatusForbidden,
-				"message": "用户不存在",
+				"message": "id 格式错误",
 			})
 		}
+		// fmt.Println(result)
 
 	} else {
 		// 没有传id
@@ -77,6 +94,11 @@ func AddUser(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":    http.StatusForbidden,
+			"message": err.Error(),
+		})
+		return
 	}
 
 	name := resp.Name
@@ -88,11 +110,12 @@ func AddUser(c *gin.Context) {
 			"message": "缺少用户名",
 		})
 	} else {
-		fmt.Println("要新增的用户是 \n", "name: ", name)
+		// fmt.Println("要新增的用户是 \n", "name: ", name)
 		// 向数据库中新增用户
 		id, err := resp.AddUser()
 
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":    http.StatusForbidden,
 				"message": err.Error(),
