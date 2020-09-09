@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"gin-demo/app/models"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -86,14 +84,32 @@ func UserInfo(c *gin.Context) {
 // AddUser is function to add user in database which table' name is user
 // 新增用户
 func AddUser(c *gin.Context) {
-	// 获取body中的数据
-	data, _ := ioutil.ReadAll(c.Request.Body)
 
-	var resp models.User
-	err := json.Unmarshal(data, &resp)
+	// 利用bind绑定json数据
+	var form models.User
+
+	err := c.BindJSON(&form)
 
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if form.Name == "" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":    http.StatusForbidden,
+			"message": "缺少用户名",
+		})
+		return
+	}
+
+	// 向数据库中新增用户
+	id, err := form.AddUser()
+
+	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"code":    http.StatusForbidden,
 			"message": err.Error(),
@@ -101,33 +117,112 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	name := resp.Name
+	if id != 0 {
+		fmt.Println("id", id)
+		c.JSON(http.StatusOK, gin.H{
+			"code":    http.StatusOK,
+			"message": "新增成功",
+		})
+	}
 
-	if name == "" {
-		fmt.Println("没有用户名")
+	// 获取body中的数据
+	// data, _ := ioutil.ReadAll(c.Request.Body)
+
+	// var resp models.User
+	// err := json.Unmarshal(data, &resp)
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	c.JSON(http.StatusForbidden, gin.H{
+	// 		"code":    http.StatusForbidden,
+	// 		"message": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// name := resp.Name
+
+	// if name == "" {
+	// 	fmt.Println("没有用户名")
+	// 	c.JSON(http.StatusForbidden, gin.H{
+	// 		"code":    http.StatusForbidden,
+	// 		"message": "缺少用户名",
+	// 	})
+	// } else {
+	// 	// fmt.Println("要新增的用户是 \n", "name: ", name)
+	// 	// 向数据库中新增用户
+	// 	id, err := resp.AddUser()
+
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		c.JSON(http.StatusForbidden, gin.H{
+	// 			"code":    http.StatusForbidden,
+	// 			"message": err.Error(),
+	// 		})
+	// 		return
+	// 	}
+
+	// 	if id != 0 {
+	// 		c.JSON(http.StatusOK, gin.H{
+	// 			"code":    http.StatusOK,
+	// 			"message": "新增用户成功",
+	// 		})
+	// 	}
+	// }
+}
+
+// DeleteUser is function to delete user in database which table name is user
+func DeleteUser(c *gin.Context) {
+
+	var form models.User
+
+	err := c.BindJSON(&form)
+
+	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"code":    http.StatusForbidden,
-			"message": "缺少用户名",
+			"message": err.Error(),
 		})
-	} else {
-		// fmt.Println("要新增的用户是 \n", "name: ", name)
-		// 向数据库中新增用户
-		id, err := resp.AddUser()
-
-		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusForbidden, gin.H{
-				"code":    http.StatusForbidden,
-				"message": err.Error(),
-			})
-			return
-		}
-
-		if id != 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"code":    http.StatusOK,
-				"message": "新增用户成功",
-			})
-		}
+		return
 	}
+
+	// fmt.Println("请求数据", "\n name: ", form.Name, "\n id:", form.ID)
+
+	user, err := form.DeleteUser()
+
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{
+			"code":    http.StatusForbidden,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println("删除用户成功", user)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "删除成功",
+	})
+
+	// fmt.Println("删除用户操作")
+	// // 获取body数据
+	// body, _ := ioutil.ReadAll(c.Request.Body)
+
+	// fmt.Println("请求body", body)
+
+	// var resp models.User
+	// // 读取json数据
+	// err := json.Unmarshal(body, &resp)
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	c.JSON(http.StatusForbidden, gin.H{
+	// 		"code":    http.StatusForbidden,
+	// 		"message": err.Error(),
+	// 	})
+	// 	return
+	// }
+
+	// fmt.Println("请求数据", "\n name: ", resp.Name, "\n id:", resp.ID)
 }

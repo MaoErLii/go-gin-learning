@@ -22,6 +22,7 @@ func Init() *gin.Engine {
 	{
 		v2.GET("/info", controllers.UserInfo)
 		v2.POST("/add", controllers.AddUser)
+		v2.DELETE("/delete", controllers.DeleteUser)
 	}
 
 	return r

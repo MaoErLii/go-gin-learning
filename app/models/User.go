@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"gin-demo/database"
 	"math/rand"
 	"strconv"
@@ -68,6 +69,35 @@ func (u *User) GetUser() (user User, err error) {
 	row := database.DB.Raw("SELECT id, name FROM user WHERE id = ?", u.ID).Row()
 
 	row.Scan(&user.ID, &user.Name)
+
+	return
+}
+
+// DeleteUser is ...
+// 删除用户
+func (u *User) DeleteUser() (user User, err error) {
+	fmt.Println("要删除的用户信息", u)
+
+	user, err = u.GetUser()
+
+	if err != nil {
+		return
+	}
+
+	if user.ID == 0 {
+		err = errors.New("没有该用户")
+		return
+	}
+
+	fmt.Println("查找的用户", user)
+
+	result := database.DB.Where("name = ?", u.Name).Delete(&u)
+
+	fmt.Println("删除结果", result)
+
+	// tempU, err := u.GetUser()
+
+	// fmt.Println("从库里查询的结果", tempU)
 
 	return
 }
