@@ -23,6 +23,14 @@ func Init() *gin.Engine {
 		v2.GET("/info", controllers.UserInfo)
 		v2.POST("/add", controllers.AddUser)
 		v2.DELETE("/delete", controllers.DeleteUser)
+		v2.PUT("/update", controllers.UpdateUser)
+	}
+
+	v3 := r.Group("/Article")
+	{
+		v3.POST("/latest")
+		v3.POST("/detail")
+		v3.POST("/list")
 	}
 
 	return r

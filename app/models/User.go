@@ -95,9 +95,36 @@ func (u *User) DeleteUser() (user User, err error) {
 
 	fmt.Println("删除结果", result)
 
+	if result.Error != nil {
+		err = result.Error
+	}
+
 	// tempU, err := u.GetUser()
 
 	// fmt.Println("从库里查询的结果", tempU)
+
+	return
+}
+
+// UpdateUser is ...
+// 更新用户数据
+func (u *User) UpdateUser() (user User, err error) {
+	user, err = u.GetUser()
+
+	if err != nil {
+		return
+	}
+
+	if user.ID == 0 {
+		err = errors.New("没有该用户")
+		return
+	}
+
+	result := database.DB.Model(&u).Update("name", u.Name)
+
+	if result.Error != nil {
+		err = result.Error
+	}
 
 	return
 }

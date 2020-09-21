@@ -172,6 +172,7 @@ func AddUser(c *gin.Context) {
 }
 
 // DeleteUser is function to delete user in database which table name is user
+// 删除用户
 func DeleteUser(c *gin.Context) {
 
 	var form models.User
@@ -225,4 +226,36 @@ func DeleteUser(c *gin.Context) {
 	// }
 
 	// fmt.Println("请求数据", "\n name: ", resp.Name, "\n id:", resp.ID)
+}
+
+// UpdateUser is ...
+// 更新用户
+func UpdateUser(c *gin.Context) {
+	// fmt.Println("更新用户数据")
+
+	var form models.User
+	err := c.BindJSON(&form)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// fmt.Println("要更新的用户信息", form)
+	result, err := form.UpdateUser()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println("更新后的信息", result)
+
+	return
 }
