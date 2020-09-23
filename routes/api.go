@@ -26,11 +26,16 @@ func Init() *gin.Engine {
 		v2.PUT("/update", controllers.UpdateUser)
 	}
 
-	v3 := r.Group("/Article")
+	v3 := r.Group("/article")
 	{
 		v3.POST("/latest")
 		v3.POST("/detail")
 		v3.POST("/list")
+	}
+
+	v4 := r.Group("image")
+	{
+		v4.POST("/upload", controllers.UploadImage)
 	}
 
 	return r
