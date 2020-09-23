@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"path"
 
 	"gin-demo/config"
 
@@ -16,12 +17,23 @@ type uploadRes struct {
 // UploadImage is ...单图片上传，接收上传图片，并存入指定文件夹中
 func UploadImage(c *gin.Context) {
 	file, _ := c.FormFile("image")
-	fmt.Println("用户上传的文件", file.Filename)
 
 	if file == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
 			"message": "上传失败",
+		})
+		return
+	}
+
+	fileSize := file.Size
+	fmt.Println("上传图片大小", fileSize)
+	fileExt := path.Ext(file.Filename)
+	fmt.Println("上传文件后缀", fileExt)
+	if fileExt != ".jpg" && fileExt != ".png" && fileExt != ".bmp" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    http.StatusBadRequest,
+			"message": "上传图片格式错误",
 		})
 		return
 	}
