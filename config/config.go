@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -20,7 +21,10 @@ var FilePath string
 // 图片地址
 var ImgUrl string
 
-func init() {
+var DbName string
+
+func Init() {
+	fmt.Println("config init")
 	err := godotenv.Load()
 
 	if err != nil {
@@ -31,5 +35,6 @@ func init() {
 	DSN = os.Getenv("DSN")
 	FilePath = os.Getenv("FILE_PATH")
 	ImgUrl = os.Getenv("IMG_URL")
+	DbName = os.Getenv("NAME")
 	log.Print(PORT)
 }

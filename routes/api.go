@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"gin-demo/app/controllers"
+	"gin-demo/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +11,8 @@ import (
 // Init is ...
 func Init() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(middleware.CorsHandler())
 
 	fmt.Println("go router")
 
@@ -36,6 +39,11 @@ func Init() *gin.Engine {
 	v4 := r.Group("image")
 	{
 		v4.POST("/upload", controllers.UploadImage)
+	}
+
+	v5 := r.Group("video")
+	{
+		v5.POST("/upload", controllers.UploadVideo)
 	}
 
 	return r

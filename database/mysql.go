@@ -13,19 +13,16 @@ import (
 var DB *gorm.DB
 
 // Init is 连接mysql数据库
-func init() {
+func Init() {
 	fmt.Println("mysql init")
 	var err error
 
 	DB, err = gorm.Open(mysql.Open(config.DSN), &gorm.Config{})
 
 	if err != nil {
-		fmt.Println("mysql conect error v%", err)
-	}
-
-	if err != nil {
-		panic("连接失败")
+		fmt.Println("fail to connect database")
+		panic("stop services")
 	} else {
-		fmt.Println("数据库连接成功")
+		fmt.Println("database connect success")
 	}
 }

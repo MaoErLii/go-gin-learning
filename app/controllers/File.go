@@ -1,4 +1,3 @@
-// 文件操作相关
 package controllers
 
 import "os"
