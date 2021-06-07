@@ -16,12 +16,15 @@ type uploadRes struct {
 
 // UploadImage is ...单图片上传，接收上传图片，并存入指定文件夹中
 func UploadImage(c *gin.Context) {
-	file, _ := c.FormFile("image")
 
-	if file == nil {
+	file, fileErr := c.FormFile("image")
+
+	println("文件")
+
+	if fileErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
-			"message": "上传失败",
+			"message": fileErr.Error(),
 		})
 		return
 	}
@@ -41,7 +44,7 @@ func UploadImage(c *gin.Context) {
 	if !IsDirExist(config.FilePath) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    http.StatusBadRequest,
-			"message": "上传失败",
+			"message": "文件路径不存在",
 		})
 		return
 	}

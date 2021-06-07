@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gin-demo/app/middleware"
 	"gin-demo/config"
 	"gin-demo/database"
+	"gin-demo/database/tables"
 	"gin-demo/routes"
 )
 
@@ -13,7 +13,25 @@ func main() {
 
 	config.Init()
 
-	database.Init()
+	err := database.Init()
+	if err != nil {
+		fmt.Println("fail to connect database")
+		panic("stop services")
+	} else {
+		fmt.Println("database connect success")
+
+		fmt.Println("数据库名", database.DB.Migrator().CurrentDatabase())
+
+		// 初始化表
+		tables.Init()
+
+		var router = routes.Init()
+
+		// router.Use(middleware.CorsHandler())
+
+		router.Run(":" + config.PORT)
+
+	}
 
 	// database.DB.Begin()
 
@@ -24,10 +42,4 @@ func main() {
 	// }
 
 	// defer database.DB.Close()
-
-	var router = routes.Init()
-
-	router.Use(middleware.CorsHandler())
-
-	router.Run(":" + config.PORT)
 }
